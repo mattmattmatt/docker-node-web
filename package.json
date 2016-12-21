@@ -1,0 +1,11 @@
+{
+    "name": "docker-node",
+    "private": true,
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "express": "^4.14.x"
+    }
+}
