@@ -1,11 +1,12 @@
 {
-    "name": "docker-node",
-    "private": true,
-    "main": "index.js",
-    "scripts": {
-        "start": "node index.js"
-    },
-    "dependencies": {
-        "express": "^4.14.x"
-    }
+  "name": "docker-node",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.x"
+  }
 }
