@@ -17,12 +17,12 @@ stop:
 	@if [ -n "${RUNNER}" ]; then echo "Stopping ${RUNNER}..."; docker stop ${RUNNER}; else echo "No currently running containers."; fi;
 
 local: build stop
-	@docker run -d -i -t -p 8084:80 matt/node-web npm start
+	@docker run -d -i -t -p 8084:80 matt/node-web
 	@echo "Docker image built and running locally."
 
 prod: build stop
 	@cd /home/ec2-user/docker-node-web
-	@docker run -d -i -t -p 80:80 -e "NODE_ENV=production" matt/node-web npm start
+	@docker run -d -i -t -p 80:80 -e "NODE_ENV=production" matt/node-web
 	@echo "Docker image built and running in production."
 
 deploy: upload

@@ -8,3 +8,6 @@ EXPOSE 80
 
 WORKDIR /usr/app
 ADD . /usr/app
+
+RUN ["npm", "run", "build"]
+CMD ["npm", "start"]
