@@ -1,17 +1,19 @@
 import request from 'request';
 import config from './config';
 
-function callSendAPI(messageData) {
+import { callSendAPI as csa } from './api';
+
+export function callSendAPI(messageData) {
     request({
         uri: 'https://graph.facebook.com/v2.6/me/messages',
         qs: { access_token: config().fbPageAcessToken },
         method: 'POST',
-        json: messageData
+        json: messageData,
 
-    }, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            var recipientId = body.recipient_id;
-            var messageId = body.message_id;
+    }, (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+            const recipientId = body.recipient_id;
+            const messageId = body.message_id;
 
             if (messageId) {
                 console.log('Successfully sent message with id %s to recipient %s', messageId, recipientId);
@@ -25,23 +27,23 @@ function callSendAPI(messageData) {
 }
 
 export function sendTextMessage(recipientId, messageText) {
-    var messageData = {
+    const messageData = {
         recipient: {
-            id: recipientId
+            id: recipientId,
         },
         message: {
             text: messageText,
-            metadata: 'DEVELOPER_DEFINED_METADATA'
-        }
+            metadata: 'DEVELOPER_DEFINED_METADATA',
+        },
     };
 
-    callSendAPI(messageData);
+    csa(messageData);
 }
 
 export function sendButtonMessage(recipientId) {
-    var messageData = {
+    const messageData = {
         recipient: {
-            id: recipientId
+            id: recipientId,
         },
         message: {
             attachment: {
@@ -52,128 +54,79 @@ export function sendButtonMessage(recipientId) {
                     buttons: [{
                         type: 'postback',
                         title: 'Trigger Postback',
-                        payload: 'DEVELOPER_DEFINED_PAYLOAD'
+                        payload: 'DEVELOPER_DEFINED_PAYLOAD',
                     }, {
                         type: 'postback',
                         title: 'Trigger Postback',
-                        payload: 'DEVELOPER_DEFINED_PAYLOAD'
+                        payload: 'DEVELOPER_DEFINED_PAYLOAD',
                     }, {
                         type: 'postback',
                         title: 'Trigger Postback',
-                        payload: 'DEVELOPER_DEFINED_PAYLOAD'
-                    }, ]
-                }
-            }
-        }
+                        payload: 'DEVELOPER_DEFINED_PAYLOAD',
+                    }],
+                },
+            },
+        },
     };
 
-    callSendAPI(messageData);
+    csa(messageData);
 }
-export function sendQuickReplyMessage(recipientId) {
-    var messageData = {
+export function sendQuickReplyMessage(recipientId, text, quickReplies) {
+    if (!recipientId || !text || !quickReplies ||
+        quickReplies.length < 1 || quickReplies.length > 11) {
+        throw new Error(`sendQuickReplyMessage requires valid amount of quickReplies, was called with ${quickReplies.length}`);
+    }
+    const replies = quickReplies.map(reply => Object.assign({}, reply, {
+        content_type: 'text',
+    }));
+    const messageData = {
         recipient: {
-            id: recipientId
+            id: recipientId,
         },
         message: {
-            text: 'Pick a color:',
-            quick_replies: [
-                {
-                    content_type: 'text',
-                    title: 'Red',
-                    payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_RED'
-                },
-                {
-                    content_type: 'text',
-                    title: 'Green',
-                    payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_GREEN'
-                },
-                {
-                    content_type: 'text',
-                    title: 'Red',
-                    payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_RED'
-                },
-                {
-                    content_type: 'text',
-                    title: 'Green',
-                    payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_GREEN'
-                },
-                {
-                    content_type: 'text',
-                    title: 'Red',
-                    payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_RED'
-                },
-                {
-                    content_type: 'text',
-                    title: 'Green',
-                    payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_GREEN'
-                },
-                {
-                    content_type: 'text',
-                    title: 'Red',
-                    payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_RED'
-                },
-                {
-                    content_type: 'text',
-                    title: 'Green',
-                    payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_GREEN'
-                },
-                {
-                    content_type: 'text',
-                    title: 'Red',
-                    payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_RED'
-                },
-                {
-                    content_type: 'text',
-                    title: 'Green',
-                    payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_GREEN'
-                },
-                {
-                    content_type: 'text',
-                    title: 'Red',
-                    payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_RED'
-                },
-            ]
-        }
+            text,
+            quick_replies: replies,
+        },
     };
 
-    callSendAPI(messageData);
+    csa(messageData);
 }
 
 export function sendReadReceipt(recipientId) {
     console.log('Sending a read receipt to mark message as seen');
 
-    var messageData = {
+    const messageData = {
         recipient: {
-            id: recipientId
+            id: recipientId,
         },
-        sender_action: 'mark_seen'
+        sender_action: 'mark_seen',
     };
 
-    callSendAPI(messageData);
+    csa(messageData);
 }
 
 export function sendTypingOn(recipientId) {
     console.log('Turning typing indicator on');
 
-    var messageData = {
+    const messageData = {
         recipient: {
-            id: recipientId
+            id: recipientId,
         },
-        sender_action: 'typing_on'
+        sender_action: 'typing_on',
     };
 
-    callSendAPI(messageData);
+    csa(messageData);
 }
 
 export function sendTypingOff(recipientId) {
     console.log('Turning typing indicator off');
 
-    var messageData = {
+    const messageData = {
         recipient: {
-            id: recipientId
+            id: recipientId,
         },
-        sender_action: 'typing_off'
+        sender_action: 'typing_off',
     };
 
-    callSendAPI(messageData);
+    csa(messageData);
 }
