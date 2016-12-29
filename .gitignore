@@ -3,3 +3,4 @@ src/config.js
 dist
 npm-debug.log
 coverage
+certificates

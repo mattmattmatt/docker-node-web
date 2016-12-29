@@ -10,7 +10,7 @@ build:
 
 upload:
 	@echo "Uploading..."
-	@scp -r -i "/Users/matt/Documents/code/iot/aws-matt-private.pem" src/ package.json Dockerfile Makefile ec2-user@ec2-54-166-217-62.compute-1.amazonaws.com:/home/ec2-user/docker-node-web/
+	@scp -r -i "/Users/matt/Documents/code/iot/aws-matt-private.pem" src/ certificates/ package.json Dockerfile Makefile ec2-user@ec2-54-166-217-62.compute-1.amazonaws.com:/home/ec2-user/docker-node-web/
 	@echo "Uploading done."
 
 stop:
