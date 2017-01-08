@@ -8,15 +8,15 @@ function sendDefaultMessage(recipientId) {
             payload: 'Lights',
         },
         {
-            title: 'Play music',
+            title: 'Tunes',
             payload: 'Play music',
         },
         {
-            title: 'Watch TV',
+            title: 'Shows',
             payload: 'tv shows',
         },
         {
-            title: 'Watch a movie',
+            title: 'Movie',
             payload: 'movie',
         },
         {
@@ -24,7 +24,7 @@ function sendDefaultMessage(recipientId) {
             payload: 'Volume',
         },
         {
-            title: 'Music controls',
+            title: 'Controls',
             payload: 'Music',
         },
         {
@@ -32,23 +32,27 @@ function sendDefaultMessage(recipientId) {
             payload: 'TV',
         },
         {
-            title: 'Coming home',
+            title: 'Wake',
+            payload: 'morning',
+        },
+        {
+            title: 'Sleep',
+            payload: 'sleep',
+        },
+        {
+            title: 'Coming',
             payload: 'Coming home',
         },
         {
-            title: 'Leaving home',
+            title: 'Leaving',
             payload: 'Leaving home',
-        },
-        {
-            title: 'Reset Kodi',
-            payload: 'Reset Kodi',
         },
     ], true);
 }
 
 function sendOk(recipientId, message) {
     api.sendTextMessage(recipientId, message || 'Done 👍');
-    setTimeout(sendDefaultMessage, 1000, recipientId);
+    setTimeout(sendDefaultMessage, 500, recipientId);
 }
 
 export const handlers = [
@@ -154,11 +158,11 @@ export const handlers = [
                             payload: 'previous song',
                         },
                         {
-                            title: 'Play',
+                            title: '▶️',
                             payload: 'play music',
                         },
                         {
-                            title: 'Stop',
+                            title: '⏹',
                             payload: 'stop music',
                         },
                         {
@@ -168,6 +172,10 @@ export const handlers = [
                         {
                             title: 'Volume',
                             payload: 'volume',
+                        },
+                        {
+                            title: 'Reset Kodi',
+                            payload: 'Reset Kodi',
                         },
                     ]);
                 }
@@ -280,6 +288,36 @@ export const handlers = [
             handleMessage: (text, recipientId) => {
                 sendMqtt('events/home/leaving').then(() => {
                     sendOk(recipientId, 'See you later! 🚶');
+                });
+            },
+        },
+    },
+    {
+        regex: /(.+\s)?(morning)(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                sendMqtt('events/wake').then(() => {
+                    sendOk(recipientId, 'Good morning, sunshine! 🌅');
+                });
+            },
+        },
+    },
+    {
+        regex: /(.+\s)?(night|sleep)(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                sendMqtt('events/sleep').then(() => {
+                    sendOk(recipientId, 'Good night! 🛌');
+                });
+            },
+        },
+    },
+    {
+        regex: /(.+\s)?(addon)(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                sendMqtt('events/watch/addon').then(() => {
+                    sendOk(recipientId);
                 });
             },
         },
