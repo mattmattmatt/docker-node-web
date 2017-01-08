@@ -21,12 +21,12 @@ export function callSendAPI(messageData) {
                 console.log('Successfully called Send API for recipient %s', recipientId);
             }
         } else {
-            console.error('Failed calling Send API', response.statusCode, response.statusMessage, body.error);
+            console.error('Failed calling Send API', response.statusCode, response.statusMessage, body.error, messageData);
         }
     });
 }
 
-export function sendTextMessage(recipientId, messageText) {
+export function sendTextMessage(recipientId, messageText, isSilent) {
     const messageData = {
         recipient: {
             id: recipientId,
@@ -35,6 +35,7 @@ export function sendTextMessage(recipientId, messageText) {
             text: messageText,
             metadata: 'DEVELOPER_DEFINED_METADATA',
         },
+        notification_type: isSilent ? 'NO_PUSH' : 'REGULAR',
     };
 
     csa(messageData);
@@ -71,7 +72,7 @@ export function sendButtonMessage(recipientId) {
 
     csa(messageData);
 }
-export function sendQuickReplyMessage(recipientId, text, quickReplies) {
+export function sendQuickReplyMessage(recipientId, text, quickReplies, isSilent) {
     if (!recipientId || !text || !quickReplies ||
         quickReplies.length < 1 || quickReplies.length > 11) {
         throw new Error(`sendQuickReplyMessage requires valid amount of quickReplies, was called with ${quickReplies.length}`);
@@ -87,6 +88,7 @@ export function sendQuickReplyMessage(recipientId, text, quickReplies) {
             text,
             quick_replies: replies,
         },
+        notification_type: isSilent ? 'NO_PUSH' : 'REGULAR',
     };
 
     csa(messageData);

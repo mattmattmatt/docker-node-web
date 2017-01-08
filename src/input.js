@@ -1,11 +1,61 @@
 import * as api from './api';
+import sendMqtt from './mqtt';
+
+function sendDefaultMessage(recipientId) {
+    api.sendQuickReplyMessage(recipientId, 'What can I help you with?', [
+        {
+            title: 'Lights',
+            payload: 'Lights',
+        },
+        {
+            title: 'Play music',
+            payload: 'Play music',
+        },
+        {
+            title: 'Watch TV',
+            payload: 'tv shows',
+        },
+        {
+            title: 'Watch a movie',
+            payload: 'movie',
+        },
+        {
+            title: 'Volume',
+            payload: 'Volume',
+        },
+        {
+            title: 'Music controls',
+            payload: 'Music',
+        },
+        {
+            title: 'TV',
+            payload: 'TV',
+        },
+        {
+            title: 'Coming home',
+            payload: 'Coming home',
+        },
+        {
+            title: 'Leaving home',
+            payload: 'Leaving home',
+        },
+        {
+            title: 'Reset Kodi',
+            payload: 'Reset Kodi',
+        },
+    ], true);
+}
+
+function sendOk(recipientId, message) {
+    api.sendTextMessage(recipientId, message || 'Done 👍');
+    setTimeout(sendDefaultMessage, 1000, recipientId);
+}
 
 export const handlers = [
     {
-        regex: /.*\s?lights?(\s.+)?$/i,
+        regex: /.*\s?lights?(\s.+)?/i,
         handler: {
             handleMessage: (text, recipientId) => {
-                console.log(text, recipientId);
                 if (text.match(/^\s*lights\s*$/i)) {
                     api.sendQuickReplyMessage(recipientId, 'What should I do with the lights?', [
                         {
@@ -17,13 +67,230 @@ export const handlers = [
                             payload: 'lights off',
                         },
                         {
+                            title: 'Bright',
+                            payload: 'lights bright',
+                        },
+                        {
                             title: 'Reading',
                             payload: 'lights reading',
                         },
+                        {
+                            title: 'Relax',
+                            payload: 'lights relax',
+                        },
+                        {
+                            title: 'Bedtime',
+                            payload: 'lights bedtime',
+                        },
+                        {
+                            title: 'Movies',
+                            payload: 'lights movie',
+                        },
+                        {
+                            title: 'Red',
+                            payload: 'lights red',
+                        },
+                        {
+                            title: 'Minimal',
+                            payload: 'lights minimal',
+                        },
+                        {
+                            title: 'Party',
+                            payload: 'lights party',
+                        },
                     ]);
                 } else {
-                    api.sendTextMessage(recipientId, 'Ok 👍');
+                    sendMqtt('events/lights/scene', text.replace(/.*lights?\s?/i, '')).then(() => {
+                        sendOk(recipientId);
+                    });
                 }
+            },
+        },
+    },
+    {
+        regex: /.*\s?tv\s(shows?|episodes?)(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                sendMqtt('events/watch/tvshow').then(() => {
+                    sendOk(recipientId, 'Let\'s watch something!');
+                });
+            },
+        },
+    },
+    {
+        regex: /(.+\s)?movies?(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                sendMqtt('events/watch/movie').then(() => {
+                    sendOk(recipientId, 'Let\'s watch a movie! 🎬');
+                });
+            },
+        },
+    },
+    {
+        regex: /(.+\s)?(music|song)(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                if (text.match(/(.+\s)?((play|listen|turn on).+music|play a song|make.+noise)(\s.+)?/i)) {
+                    sendMqtt('events/music/play').then(() => {
+                        sendOk(recipientId, 'Tunes coming up! 🎵🎶🎵');
+                    });
+                } else if (text.match(/(.+\s)?((stop|kill|turn off).+music)(\s.+)?/i)) {
+                    sendMqtt('events/kodi/execute', 'stop').then(() => {
+                        sendOk(recipientId, 'Silence it is. 🤐');
+                    });
+                } else if (text.match(/next/i)) {
+                    sendMqtt('events/kodi/execute', 'next').then(() => {
+                        sendOk(recipientId, '⏭');
+                    });
+                } else if (text.match(/last|previous|prev|back/i)) {
+                    sendMqtt('events/kodi/execute', 'previous').then(() => {
+                        sendOk(recipientId, '⏮');
+                    });
+                } else if (text.match(/^\s?music\s?$/i)) {
+                    api.sendQuickReplyMessage(recipientId, 'What\'s up with the music?', [
+                        {
+                            title: '⏮',
+                            payload: 'previous song',
+                        },
+                        {
+                            title: 'Play',
+                            payload: 'play music',
+                        },
+                        {
+                            title: 'Stop',
+                            payload: 'stop music',
+                        },
+                        {
+                            title: '⏭',
+                            payload: 'next song',
+                        },
+                        {
+                            title: 'Volume',
+                            payload: 'volume',
+                        },
+                    ]);
+                }
+            },
+        },
+    },
+    {
+        regex: /.*\s?tv(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                if (text.match(/^\s*tv\s*$/i)) {
+                    sendMqtt('events/tv', '2').then(() => {
+                        sendOk(recipientId, 'I toggled the TV! 📺');
+                    });
+                } else if (text.match(/^\s*tv\s+on\s*$/i)) {
+                    sendMqtt('events/tv', '1').then(() => {
+                        sendOk(recipientId, 'Turning TV on... 📺');
+                    });
+                } else {
+                    sendMqtt('events/tv', '0').then(() => {
+                        sendOk(recipientId, 'Turning TV off... 📺');
+                    });
+                }
+            },
+        },
+    },
+    {
+        regex: /.*\s?(?:volume|vol)(?:\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                if (text.match(/^\s*(volume|vol)\s*$/i)) {
+                    api.sendQuickReplyMessage(recipientId, 'What should I turn the volume to?', [
+                        {
+                            title: '10',
+                            payload: 'volume 10',
+                        },
+                        {
+                            title: '20',
+                            payload: 'volume 20',
+                        },
+                        {
+                            title: '25',
+                            payload: 'volume 25',
+                        },
+                        {
+                            title: '30',
+                            payload: 'volume 30',
+                        },
+                        {
+                            title: '35',
+                            payload: 'volume 35',
+                        },
+                        {
+                            title: '40',
+                            payload: 'volume 40',
+                        },
+                        {
+                            title: '45',
+                            payload: 'volume 45',
+                        },
+                        {
+                            title: '50',
+                            payload: 'volume 50',
+                        },
+                        {
+                            title: '60',
+                            payload: 'volume 60',
+                        },
+                        {
+                            title: '75',
+                            payload: 'volume 75',
+                        },
+                        {
+                            title: '90',
+                            payload: 'volume 90',
+                        },
+                    ]);
+                } else {
+                    const newVol = /.*\s?(?:volume|vol)(?:\s.+)?\s(\d{1,})(?:\s.+)?/i.exec(text)[1];
+                    sendMqtt('events/kodi/volume', newVol).then(() => {
+                        sendOk(recipientId, `${newVol} it is, mate! 💂`);
+                    });
+                }
+            },
+        },
+    },
+    {
+        regex: /.*\s?say(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                sendMqtt('events/home/speak', text.replace(/^\s*say\s+/i, '')).then(() => {
+                    sendOk(recipientId);
+                });
+            },
+        },
+    },
+    {
+        regex: /(.+\s)?(coming|I'm home|home now)(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                sendMqtt('events/home/coming').then(() => {
+                    sendOk(recipientId, 'Welcome home! 🏠');
+                });
+            },
+        },
+    },
+    {
+        regex: /(.+\s)?(leaving|going out|see you)(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                sendMqtt('events/home/leaving').then(() => {
+                    sendOk(recipientId, 'See you later! 🚶');
+                });
+            },
+        },
+    },
+    {
+        regex: /(.+\s)?(reset kodi)(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                sendMqtt('events/kodi/done').then(() => {
+                    sendOk(recipientId);
+                });
             },
         },
     },
@@ -31,7 +298,7 @@ export const handlers = [
         regex: /.+/i,
         handler: {
             handleMessage: (text, recipientId) => {
-                api.sendTextMessage(recipientId, 'Not sure what you mean 🤔');
+                sendOk(recipientId, 'Not sure what you mean there, buddy 🤔');
             },
         },
     },
@@ -47,11 +314,13 @@ export function receivedMessage(event) {
     console.log('Received message data: ', event.message);
     let text;
     api.sendReadReceipt(event.sender.id);
-    api.sendTypingOn(event.sender.id);
     if (event.message.quick_reply && event.message.quick_reply.payload) {
         text = event.message.quick_reply.payload;
     } else {
         text = event.message.text;
     }
-    getMessageHandler(text).handleMessage(text, event.sender.id);
+    if (text) {
+        api.sendTypingOn(event.sender.id);
+        getMessageHandler(text).handleMessage(text, event.sender.id);
+    }
 }

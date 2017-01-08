@@ -17,7 +17,7 @@ const publishOptions = {
     qos: 2,
 };
 
-export function send(topic, payload) {
+export default function send(topic, payload) {
     return new Promise((resolve, reject) => {
         if (!topic) {
             reject('No topic specified.');
@@ -28,6 +28,7 @@ export function send(topic, payload) {
             return;
         }
         const client = mqtt.connect(clientOptions);
+        console.log('Sending MQTT message:', topic, payload);
 
         client.on('connect', () => {
             client.publish(topic, payload, publishOptions,
