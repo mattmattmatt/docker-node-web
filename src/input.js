@@ -333,6 +333,29 @@ export const handlers = [
         },
     },
     {
+        regex: /(.+\s)?(talk|text|write).+me(\s.+)?/i,
+        handler: {
+            handleMessage: (text, recipientId) => {
+                api.sendTextMessage(recipientId, 'I shall write you a few messages after this one.');
+                setTimeout(() => {
+                    api.sendTextMessage(recipientId, 'This is the first of said messages!');
+                }, 2000);
+                setTimeout(() => {
+                    api.sendTextMessage(recipientId, 'This is the second of those messages. 2⃣');
+                }, 5000);
+                setTimeout(() => {
+                    api.sendTextMessage(recipientId, 'And here is the third message. It is a quite long one with a few lines of text.\nIt also includes a line break, some commas, and \n another line break right here.');
+                }, 10000);
+                setTimeout(() => {
+                    api.sendTextMessage(recipientId, 'And here is the final message. I\'m done talking now. See you later, buddy!');
+                }, 12000);
+                setTimeout(() => {
+                    sendDefaultMessage(recipientId);
+                }, 15000);
+            },
+        },
+    },
+    {
         regex: /.+/i,
         handler: {
             handleMessage: (text, recipientId) => {
