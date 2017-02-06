@@ -1,6 +1,6 @@
 # docker-node-web
 
-**This Docker image with a node webserver running inside provides a Facebook messanger chatbot that translates specific text messages into MQTT messages for controlling home automation systems.**
+**This Docker image with a node webserver running inside provides a Facebook messenger chatbot that translates specific text messages into MQTT messages for controlling home automation systems.**
 
 ## Development & deployment
 
