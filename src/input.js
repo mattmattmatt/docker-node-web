@@ -20,24 +20,8 @@ function sendDefaultMessage(recipientId) {
             payload: 'movie',
         },
         {
-            title: 'Volume',
-            payload: 'Volume',
-        },
-        {
-            title: 'Controls',
-            payload: 'Music',
-        },
-        {
             title: 'TV',
             payload: 'TV',
-        },
-        {
-            title: 'Wake',
-            payload: 'morning',
-        },
-        {
-            title: 'Sleep',
-            payload: 'sleep',
         },
         {
             title: 'Coming',
@@ -46,6 +30,22 @@ function sendDefaultMessage(recipientId) {
         {
             title: 'Leaving',
             payload: 'Leaving home',
+        },
+        {
+            title: 'Volume',
+            payload: 'Volume',
+        },
+        {
+            title: 'Controls',
+            payload: 'Music',
+        },
+        {
+            title: 'Wake',
+            payload: 'morning',
+        },
+        {
+            title: 'Sleep',
+            payload: 'sleep',
         },
     ], true);
 }
