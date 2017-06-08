@@ -102,7 +102,15 @@ export const handlers = [
                             title: 'Party',
                             payload: 'lights party',
                         },
+                        {
+                            title: 'Fade In',
+                            payload: 'lights fadein',
+                        },
                     ]);
+                } else if (text.match(/^\s*lights\s+fade\s*in\s*$/i)) {
+                    sendMqtt('events/lights/fadein').then(() => {
+                        sendOk(recipientId);
+                    });
                 } else {
                     sendMqtt('events/lights/scene', text.replace(/.*lights?\s?/i, '')).then(() => {
                         sendOk(recipientId);
